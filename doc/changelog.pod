@@ -1,0 +1,66 @@
+=head1 NAME
+
+Revision History for WordNet::SenseRelate::TargetWord.
+
+=head1 SYNOPSIS
+
+A list of changes to the WordNet::SenseRelate::TargetWord package. These
+are copied from the Recently Completed Items in the file todo.pod when a
+new version is released. 
+
+=head1 DESCRIPTION
+
+=head2 Version 0.06
+
+=over
+
+=item *
+
+06/07/05
+
+=over
+
+=item (1)
+
+Converted the SenseRelate (v0.05) package to a modular package
+WordNet::SenseRelate::TargetWord.
+
+=back
+
+=back
+
+=head1 AUTHORS
+
+  Siddharth Patwardhan, University of Utah, Salt Lake City
+  sidd at cs.utah.edu
+
+  Ted Pedersen, University of Minnesota Duluth
+  tpederse at d.umn.edu
+
+  Satanjeev Banerjee, Carnegie Mellon University, Pittsburgh
+  banerjee+ at cs.cmu.edu
+
+=head1 BUGS
+
+None.
+
+=head1 SEE ALSO
+
+todo.pod
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen and Satanjeev
+Banerjee
+
+Permission is granted to copy, distribute and/or modify this  document  
+under the terms of the GNU Free Documentation License, Version 1.2 or  any  
+later version published by the Free Software Foundation; with no  
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+
+Note: a copy of the GNU Free Documentation License is available on the web   
+at L<http://www.gnu.org/copyleft/fdl.html> and is included in this    
+distribution as FDL.txt. 
+
+=cut
+

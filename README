@@ -1,0 +1,31 @@
+WordNet-SenseRelate-TargetWord version 0.06
+===========================================
+
+WordNet::SenseRelate::TargetWord is a set of modules that perform the task
+of Word Sense Disambiguation. 
+
+INSTALLATION
+
+To install this module type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+DEPENDENCIES
+
+This module requires the following modules and libraries:
+
+  WordNet::QueryData
+  WordNet::Similarity
+  XML::Parser
+  
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2005 by Siddharth Patwardhan, Satanjeev Banerjee and Ted Pedersen
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.3 or,
+at your option, any later version of Perl 5 you may have available.
+

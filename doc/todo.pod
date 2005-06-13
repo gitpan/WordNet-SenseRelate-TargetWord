@@ -1,0 +1,68 @@
+=head1 NAME 
+
+TODO LIST FOR WordNet::SenseRelate::TargetWord
+
+=head1 SYNOPSIS
+
+A list of things to do for WordNet::SenseRelate::TargetWord. 
+
+=head1 DESCRIPTION
+
+As these items are completed, move them down into Recently
+Completed Items, make sure to date and initial. When we have
+a version release, all of the recently completed items 
+should be moved into changelog.pod. 
+
+=head2 FOR VERSION 0.07:
+
+=over
+
+=item *
+
+Add a Graphical Interface to the package. 
+
+=back
+
+=head2 GOOD IDEAS FOR FUTURE WORK, DO WHEN POSSIBLE
+
+=over 4
+
+=item *
+
+Combine WordNet::SenseRelate::TargetWord with WordNet::SenseRelate::AllWords.
+
+=item * 
+
+Rather than specifying the Semantic Relatedness measure as a separate option, it
+should be passed as an option to any of the algorithms that require it.
+
+=back
+
+=head1 AUTHORS
+
+Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev Banerjee
+
+=head1 BUGS
+
+None.
+
+=head1 SEE ALSO
+
+changelog.pod
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev 
+Banerjee. 
+
+Permission is granted to copy, distribute and/or modify this  document  
+under the terms of the GNU Free Documentation License, Version 1.2 or any  
+later version published by the Free Software Foundation; with no  
+Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+
+Note: a copy of the GNU Free Documentation License is available on the web   
+at L<http://www.gnu.org/copyleft/fdl.html> and is included in this    
+distribution as FDL.txt. 
+
+=cut
+
