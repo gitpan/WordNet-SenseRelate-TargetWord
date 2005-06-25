@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Instance v0.01
-# (Last updated $Id: Instance.pm,v 1.3 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Instance v0.02
+# (Last updated $Id: Instance.pm,v 1.4 2005/06/24 13:55:37 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Instance;
 
@@ -7,7 +7,7 @@ use strict;
 use vars qw($VERSION @ISA);
 
 @ISA     = qw(Exporter);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 # Constructor for this module
 sub new
@@ -70,7 +70,7 @@ WordNet::SenseRelate::Word(3)
 
 Siddharth Patwardhan, sidd at cs.utah.edu>
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

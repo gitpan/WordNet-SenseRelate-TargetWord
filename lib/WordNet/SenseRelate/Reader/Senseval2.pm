@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Reader::Senseval2 v0.01
-# (Last updated $Id: Senseval2.pm,v 1.6 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Reader::Senseval2 v0.02
+# (Last updated $Id: Senseval2.pm,v 1.9 2005/06/24 13:55:39 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Reader::Senseval2;
 
@@ -10,7 +10,7 @@ use WordNet::SenseRelate::Word;
 use vars qw($VERSION @ISA);
 
 @ISA     = qw(Exporter);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 # Constructor for this module
 # Instance Fields:
@@ -357,7 +357,7 @@ sub _getInstance
     # Complete the instance object data
     $retRef->{lexelt}    = $lexelt;
     $retRef->{id}        = $id;
-    $retRef->{answer}    = $aid if (defined $aid && $aid ne "");
+    $retRef->{answer}    = $sid if (defined $aid && $aid ne "");
     $retRef->{targetpos} = $1 if ($lexelt =~ /\.([nvar])$/);
 
     return $retRef;
@@ -484,7 +484,7 @@ WordNet::SenseRelate::TargetWord(3)
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

@@ -6,10 +6,10 @@ use 5.006;
 use ExtUtils::MakeMaker;
 
 my $author1 = 'Siddharth Patwardhan <sidd@cs.utah.edu>';
-my $author2 = 'Satanjeev Banerjee <satanjeev@cs.cmu.edu>';
+my $author2 = 'Satanjeev Banerjee <banerjee+@cs.cmu.edu>';
 my $author3 = 'Ted Pedersen <tpederse@d.umn.edu>';
 
-my @installable = ("disamb.pl", "wps2sk.pl");
+my @installable = ("disamb.pl", "wps2sk.pl", "disamb-gui.pl");
 
 WriteMakefile(
     NAME              => 'WordNet::SenseRelate::TargetWord',

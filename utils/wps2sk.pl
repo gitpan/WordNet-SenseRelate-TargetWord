@@ -1,7 +1,7 @@
 #! /usr/local/bin/perl -w
-# (Updated: $Id: wps2sk.pl,v 1.3 2005/06/08 13:49:24 sidz1979 Exp $)
+# (Updated: $Id: wps2sk.pl,v 1.6 2005/06/24 13:55:39 sidz1979 Exp $)
 #
-# wps2sk.pl version 0.1
+# wps2sk.pl version 0.2
 #
 # Program to convert SENSEVAL answer files with answers in the
 # word#pos#sense format to mnemonics using the word#pos#sense -
@@ -10,7 +10,7 @@
 # Copyright (c) 2005
 #
 # Satanjeev Banerjee, Carnegie Mellon University
-# satanjeev@cs.cmu.edu
+# banerjee+@cs.cmu.edu
 #
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse@d.umn.edu
@@ -37,10 +37,11 @@
 use Getopt::Long;
 
 # now get the options!
-&GetOptions("help", "wnpath=s",  "version");
+&GetOptions("quiet", "help", "wnpath=s", "version");
+our ($opt_quiet, $opt_help, $opt_wnpath, $opt_version);
 
 # If the version information has been requested
-if(defined $opt_version)
+if (defined $opt_version)
 {
     $opt_version = 1;
     &printVersion();
@@ -48,7 +49,7 @@ if(defined $opt_version)
 }
 
 # if help has been requested, print out help!
-if(defined $opt_help)
+if (defined $opt_help)
 {
     $opt_help = 1;
     &showHelp();
@@ -56,50 +57,61 @@ if(defined $opt_help)
 }
 
 # Check if path to WordNet Data files has been provided ... If so ... save it.
-if(defined $opt_wnpath)
+if (defined $opt_wnpath)
 {
-    $wnPCPath = $opt_wnpath;
+    $wnPCPath   = $opt_wnpath;
     $wnUnixPath = $opt_wnpath;
 }
 else
 {
-    $wnPCPath = (defined $ENV{"WNHOME"}) ? $ENV{"WNHOME"} : "C:\\Program Files\\WordNet\\1.7";
-    $wnUnixPath = (defined $ENV{"WNHOME"}) ? $ENV{"WNHOME"} : "/usr/local/wordnet1.7";
-    $wnPCPath = (defined $ENV{"WNSEARCHDIR"}) ? $ENV{"WNSEARCHDIR"} : $wnPCPath."\\dict";
-    $wnUnixPath = (defined $ENV{"WNSEARCHDIR"}) ? $ENV{"WNSEARCHDIR"} : $wnUnixPath."/dict";    
+    $wnPCPath =
+      (defined $ENV{"WNHOME"})
+      ? $ENV{"WNHOME"}
+      : "C:\\Program Files\\WordNet\\1.7";
+    $wnUnixPath =
+      (defined $ENV{"WNHOME"}) ? $ENV{"WNHOME"} : "/usr/local/wordnet1.7";
+    $wnPCPath =
+      (defined $ENV{"WNSEARCHDIR"})
+      ? $ENV{"WNSEARCHDIR"}
+      : $wnPCPath . "\\dict";
+    $wnUnixPath =
+      (defined $ENV{"WNSEARCHDIR"})
+      ? $ENV{"WNSEARCHDIR"}
+      : $wnUnixPath . "/dict";
 }
 
 # Open sense index file
-open(SENSE, $wnUnixPath."/index.sense") || open(SENSE, $wnPCPath."\\sense.idx") || die "Unable to open sense index file.\n";
-
+open(SENSE,      $wnUnixPath . "/index.sense")
+  || open(SENSE, $wnPCPath . "\\sense.idx")
+  || die "Unable to open sense index file.\n";
 
 # Load up the sense file in a hash. Keys of the hash will be
 # lemma::offset - This is unique to each sense key. Values of the hash
 # will be the actual sense keys.
 
-print STDERR "Loading sense index file... ";
+print STDERR "Loading sense index file... " if (!defined $opt_quiet);
 
-while(<SENSE>)
+while (<SENSE>)
 {
     s/[\r\f\n]//g;
 
-    if($_ !~ /((\S+)%\S+)\s+(\d+)/)
-    { 
-	print STDERR "Error in sense index file. ";
-	print STDERR "Read \"$_\". Expecting \"<sense-key> <offset> ...\"\n";
-	exit;
+    if ($_ !~ /((\S+)%\S+)\s+(\d+)/)
+    {
+        print STDERR "Error in sense index file. ";
+        print STDERR "Read \"$_\". Expecting \"<sense-key> <offset> ...\"\n";
+        exit;
     }
 
-    my $key = $2 . "::" . $3;
+    my $key   = $2 . "::" . $3;
     my $value = $1;
 
-    if(defined $senseHash{$key}) { print STDERR "$key already defined!\n"; }
+    if (defined $senseHash{$key}) { print STDERR "$key already defined!\n"; }
     $senseHash{$key} = $value;
 }
 
-print STDERR "done!\n";
+print STDERR "done!\n" if (!defined $opt_quiet);
 
-# done with the index.sense file 
+# done with the index.sense file
 close(SENSE);
 
 # now do everything for each part of speech!
@@ -107,31 +119,37 @@ my $pos;
 my %mapHash = ();
 foreach $pos ("noun", "verb", "adj", "adv")
 {
-    print STDERR "Processing index.$pos file... ";
-    
+    print STDERR "Processing index.$pos file... " if (!defined $opt_quiet);
+
     # open index file
-    open(INDEX, $wnUnixPath."/index.$pos") || open(INDEX, $wnPCPath."\\$pos.idx") || die "Unable to open index file.\n";
-    
-    while(<INDEX>)
+    open(INDEX,      $wnUnixPath . "/index.$pos")
+      || open(INDEX, $wnPCPath . "\\$pos.idx")
+      || die "Unable to open index file.\n";
+
+    while (<INDEX>)
     {
-	next if(/^ /);
-	s/[\r\f\n]//g;
-	
-	# get the lemma and the number of senses
-	my ($lemma, $p, $noOfSenses, @rest) = split /\s+/;
-	
-	# for each sense of this lemma, create the key (for the above
-	# hash) and find the 
-	for($i = $#rest - $noOfSenses + 1; $i <= $#rest; $i++)
-	{
-	    my $key = $lemma . "::" . $rest[$i];
-	    if(!defined $senseHash{$key}) { print STDERR "$key not defined!!\n"; exit; }
-	    my $tmpNum = ($i - ($#rest - $noOfSenses + 1) + 1);
-	    $mapHash{"$lemma\#$p\#$tmpNum"} = $senseHash{$key};
-	}
+        next if (/^ /);
+        s/[\r\f\n]//g;
+
+        # get the lemma and the number of senses
+        my ($lemma, $p, $noOfSenses, @rest) = split /\s+/;
+
+        # for each sense of this lemma, create the key (for the above
+        # hash) and find the
+        for ($i = $#rest - $noOfSenses + 1 ; $i <= $#rest ; $i++)
+        {
+            my $key = $lemma . "::" . $rest[$i];
+            if (!defined $senseHash{$key})
+            {
+                print STDERR "$key not defined!!\n";
+                exit;
+            }
+            my $tmpNum = ($i - ($#rest - $noOfSenses + 1) + 1);
+            $mapHash{"$lemma\#$p\#$tmpNum"} = $senseHash{$key};
+        }
     }
     close(INDEX);
-    print STDERR "done!\n";
+    print STDERR "done!\n" if (!defined $opt_quiet);
 }
 
 while (<>)
@@ -140,10 +158,10 @@ while (<>)
 
     # get the index part and the answer part
     my @answers = ();
-    if(/^(\S+\s+\S+)\s+(.*)\s*/)
+    if (/^(\S+\s+\S+)\s+(.*)\s*/)
     {
         my $part1 = $1;
-        @answers = split (/\s+/, $2);
+        @answers = split(/\s+/, $2);
         $part1 =~ s/\.[nvar]//;
         print "$part1 ";
     }
@@ -152,8 +170,8 @@ while (<>)
     my $ans;
     foreach $ans (@answers)
     {
-	if (defined $mapHash{$ans}) { print "$mapHash{$ans} "; }
-	else { print STDERR "Couldnt find mapping for $ans\n"; }
+        if (defined $mapHash{$ans}) { print "$mapHash{$ans} "; }
+        else { print STDERR "Couldnt find mapping for $ans\n"; }
     }
     print "\n";
 }
@@ -161,15 +179,22 @@ while (<>)
 # function to output help messages for this program
 sub showHelp
 {
-    print "Creates a word#pos#sense to sensekey mapping of a Senseval-2 answer file\n";
+    print
+"Creates a word#pos#sense to sensekey mapping of a Senseval-2 answer file\n";
     print "(output by disamb.pl).\n";
-    print "Usage: wps2sk.pl [ [ --wnpath WNPATH] [FILE...] | --help | --version ]\n";
-    print "--wnpath         WNPATH specifies the path of the WordNet data files.\n";
-    print "                 Ordinarily, this path is determined from the \$WNHOME\n";
-    print "                 environment variable. But this option overides this\n";
+    print
+"Usage: wps2sk.pl [ [ --wnpath WNPATH] [FILE...] | --help | --version ]\n";
+    print
+      "--wnpath         WNPATH specifies the path of the WordNet data files.\n";
+    print
+"                 Ordinarily, this path is determined from the \$WNHOME\n";
+    print
+      "                 environment variable. But this option overides this\n";
     print "                 behavior.\n";
+    print "--quiet          Run in quiet mode -- do not print informational\n";
+    print "                 messages.\n";
     print "--help           Displays this help screen.\n";
-    print "--version        Displays version information.\n\n";    
+    print "--version        Displays version information.\n\n";
 }
 
 # function to output "ask for help" message when the user's goofed up!
@@ -181,11 +206,14 @@ sub askHelp
 # Subroutine to print the version information
 sub printVersion
 {
-    print "wps2sk.pl version 0.1\n";
-    print "Copyright (c) 2005 Satanjeev Banerjee, Ted Pedersen and Siddharth Patwardhan.\n";
+    print "wps2sk.pl version 0.2\n";
+    print
+"Copyright (c) 2005 Satanjeev Banerjee, Ted Pedersen and Siddharth Patwardhan.\n";
 }
 
+
 __END__
+
 
 =head1 NAME
 
@@ -221,7 +249,7 @@ B<--version>
 
  Ted Pedersen <tpederse at d.umn.edu>
 
- Satanjeev Banerjee <satanjeev at cmu.edu>
+ Satanjeev Banerjee <banerjee+ at cs.cmu.edu>
 
 =head1 BUGS
 

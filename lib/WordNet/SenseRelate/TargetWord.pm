@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::TargetWord v0.06
-# (Last Updated $Id: TargetWord.pm,v 1.8 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::TargetWord v0.07
+# (Last Updated $Id: TargetWord.pm,v 1.11 2005/06/24 13:55:37 sidz1979 Exp $)
 package WordNet::SenseRelate::TargetWord;
 
 use 5.006;
@@ -12,7 +12,7 @@ our @ISA         = qw(Exporter);
 our %EXPORT_TAGS = ('all' => [qw()]);
 our @EXPORT_OK   = (@{$EXPORT_TAGS{'all'}});
 our @EXPORT      = qw();
-our $VERSION     = '0.06';
+our $VERSION     = '0.07';
 
 # CONSTRUCTOR: Creates new SenseRelate::TargetWord object.
 # Returns the created object.
@@ -37,18 +37,17 @@ sub new
     $modules->{contextconfig} = undef;
     $modules->{postprocess}   = [];
     $modules->{postprocessconfig} = [];
-    $modules->{algorithm}     = "WordNet::SenseRelate::Algorithm::Random";
-    $modules->{algorithmconfig} = undef;
-    $modules->{measure}       = "WordNet::Similarity::lesk";
-    $modules->{measureconfig} = undef;
-    $modules->{wntools}       = undef;
+    $modules->{algorithm}         = "WordNet::SenseRelate::Algorithm::SenseOne";
+    $modules->{algorithmconfig}   = undef;
+    $modules->{wntools}           = undef;
 
     # Get the options
     my $options = shift;
-    my $trace = shift;
-    $trace = 0 if(!defined $trace);
+    my $trace   = shift;
+    $trace = 0 if (!defined $trace);
     if (defined $options && ref($options) eq "HASH")
     {
+
         # Get the Preprocessor modules
         if (defined $options->{preprocess}
             && ref($options->{preprocess}) eq "ARRAY")
@@ -62,7 +61,10 @@ sub new
             && ref($options->{preprocessconfig}) eq "ARRAY")
         {
             $modules->{preprocessconfig} = [];
-            push(@{$modules->{preprocessconfig}}, @{$options->{preprocessconfig}});
+            push(
+                 @{$modules->{preprocessconfig}},
+                 @{$options->{preprocessconfig}}
+            );
         }
 
         # Get context selection module
@@ -71,7 +73,8 @@ sub new
 
         # Get configuration options for context selection module
         $modules->{contextconfig} = $options->{contextconfig}
-          if(defined $options->{contextconfig} && ref($options->{contextconfig}) eq "HASH");
+          if (defined $options->{contextconfig}
+              && ref($options->{contextconfig}) eq "HASH");
 
         # Get postprocess modules
         if (defined $options->{postprocess}
@@ -86,7 +89,10 @@ sub new
             && ref($options->{postprocessconfig}) eq "ARRAY")
         {
             $modules->{postprocessconfig} = [];
-            push(@{$modules->{postprocessconfig}}, @{$options->{postprocessconfig}});
+            push(
+                 @{$modules->{postprocessconfig}},
+                 @{$options->{postprocessconfig}}
+            );
         }
 
         # Get algorithm module
@@ -97,17 +103,10 @@ sub new
         $modules->{algorithmconfig} = $options->{algorithmconfig}
           if (defined $options->{algorithmconfig});
 
-        # Get semantic relatedness module
-        $modules->{measure} = $options->{measure}
-          if (defined $options->{measure});
-
-        # Get configuration options for semantic relatedness module
-        $modules->{measureconfig} = $options->{measureconfig}
-          if (defined $options->{measureconfig});
-
         # Get the WordNet::SenseRelate::Tools
         $modules->{wntools} = $options->{wntools}
-          if (defined $options->{wntools} && ref($options->{wntools}) eq "WordNet::SenseRelate::Tools");
+          if (defined $options->{wntools}
+              && ref($options->{wntools}) eq "WordNet::SenseRelate::Tools");
     }
 
     # Load WordNet::SenseRelate::Tools
@@ -119,7 +118,7 @@ sub new
         $wntools = WordNet::SenseRelate::Tools->new($wntools);
         return (
             undef,
-"WordNet::SenseRelate::TargetWord->new() -- Unable to load WordNet::SenseRelate::Tools\n"
+"WordNet::SenseRelate::TargetWord->new() -- Unable to load WordNet::SenseRelate::Tools"
           )
           if (!defined $wntools);
     }
@@ -138,10 +137,11 @@ sub new
         $modulePath =~ s/::/\//g;
         $modulePath .= ".pm";
         require $modulePath;
-        $module = $preproc->new($wntools, $trace, $modules->{preprocessconfig}->[$i]);
+        $module =
+          $preproc->new($wntools, $trace, $modules->{preprocessconfig}->[$i]);
         return (
             undef,
-"WordNet::SenseRelate::TargetWord->new() -- Unable to load preprocess module $preproc\n"
+"WordNet::SenseRelate::TargetWord->new() -- Unable to load preprocess module $preproc"
           )
           if (!defined($module));
         push(@{$self->{preprocess}}, $module);
@@ -152,10 +152,11 @@ sub new
     $modulePath =~ s/::/\//g;
     $modulePath .= ".pm";
     require $modulePath;
-    $module = $modules->{context}->new($wntools, $trace, $modules->{contextconfig});
+    $module =
+      $modules->{context}->new($wntools, $trace, $modules->{contextconfig});
     return (undef,
 "WordNet::SenseRelate::TargetWord->new() -- Unable to load context selection module "
-          . ($modules->{context}) . "\n")
+          . ($modules->{context}))
       if (!defined($module));
     $self->{context} = $module;
 
@@ -168,49 +169,52 @@ sub new
         $modulePath =~ s/::/\//g;
         $modulePath .= ".pm";
         require $modulePath;
-        $module = $postproc->new($wntools, $trace, $modules->{postprocessconfig}->[$i]);
+        $module =
+          $postproc->new($wntools, $trace, $modules->{postprocessconfig}->[$i]);
         return (
             undef,
-"WordNet::SenseRelate::TargetWord->new() -- Unable to load postprocess module $postproc\n"
+"WordNet::SenseRelate::TargetWord->new() -- Unable to load postprocess module $postproc"
           )
           if (!defined($module));
         push(@{$self->{postprocess}}, $module);
     }
-
-    # Load Similarity module
-    $modulePath = $modules->{measure};
-    $modulePath =~ s/::/\//g;
-    $modulePath .= ".pm";
-    require $modulePath;
-    $module =
-      $modules->{measure}->new($wntools->{wn}, $modules->{measureconfig});
-    return (undef,
-"WordNet::SenseRelate::TargetWord->new() -- Unable to load similarity measure module "
-          . ($modules->{measure}) . "\n")
-      if (!defined($module));
-    $module->{'trace'} = 2 if($trace);
-    $self->{measure} = $module;
-    my $measurepos = "";
-    foreach my $mypos ('n', 'v', 'a', 'r')
-    {
-        $measurepos .= $mypos if(defined $module->{$mypos});
-    }
-    $measurepos = "nvar" if($measurepos eq "");
-    $self->{contextpos} = $measurepos;
 
     # Load Disambiguation Algorithm module
     $modulePath = $modules->{algorithm};
     $modulePath =~ s/::/\//g;
     $modulePath .= ".pm";
     require $modulePath;
-    $module = $modules->{algorithm}->new($wntools, $self->{measure}, $trace, $modules->{algorithmconfig});
+    $module =
+      $modules->{algorithm}->new($wntools, $trace, $modules->{algorithmconfig});
     return (undef,
 "WordNet::SenseRelate::TargetWord->new() -- Unable to load disambiguation module "
-          . ($modules->{algorithm}) . "\n")
+          . ($modules->{algorithm}))
       if (!defined($module));
-    $self->{algorithm} = $module;
-    
-    $self->{trace} = $trace;
+    $self->{algorithm}  = $module;
+    $self->{contextpos} = $module->{contextpos};
+
+    # Initialize the trace string
+    $self->{trace}       = $trace;
+    $self->{tracestring} = "";
+    if ($trace)
+    {
+        foreach my $tmpModName (@{$modules->{preprocess}})
+        {
+            $self->{tracestring} .=
+"WordNet::SenseRelate::TargetWord ~ Loaded preprocess module $tmpModName\n";
+        }
+        $self->{tracestring} .=
+          "WordNet::SenseRelate::TargetWord ~ Loaded context selection module "
+          . ($modules->{context}) . "\n";
+        foreach my $tmpModName (@{$modules->{postprocess}})
+        {
+            $self->{tracestring} .=
+"WordNet::SenseRelate::TargetWord ~ Loaded postprocess module $tmpModName\n";
+        }
+        $self->{tracestring} .=
+          "WordNet::SenseRelate::TargetWord ~ Loaded algorithm module "
+          . ($modules->{algorithm}) . "\n";
+    }
 
     return ($self, undef);
 }
@@ -223,17 +227,38 @@ sub disambiguate
     my $instance = shift;
     my $sense;
     my $wntools = $self->{wntools};
+    my $trace   = $self->{trace};
+    $trace = 0 if (!defined $trace);
 
-    return undef
+    return (
+        undef,
+"WordNet::SenseRelate::TargetWord->disambiguate() -- TargetWord object not found."
+      )
       if (   !defined($self)
           || !ref($self)
           || ref($self) ne "WordNet::SenseRelate::TargetWord");
-    return undef if (!defined($instance) || !ref($instance));
+    return (
+        undef,
+"WordNet::SenseRelate::TargetWord->disambiguate() -- No instance specified."
+      )
+      if (!defined($instance) || !ref($instance));
 
     # Preprocess the instance
     foreach my $preproc (@{$self->{preprocess}})
     {
         $instance = $preproc->preprocess($instance);
+        return (
+            undef,
+"WordNet::SenseRelate::TargetWord->disambiguate() -- Error preprocessing instance."
+          )
+          if (!defined $instance);
+        if ($trace)
+        {
+            $self->{tracestring} .=
+              "WordNet::SenseRelate::TargetWord ~ Preprocessing instance ("
+              . ($instance->{id}) . ").\n";
+            $self->{tracestring} .= $preproc->getTraceString();
+        }
     }
 
     # Required processing of words:
@@ -242,26 +267,59 @@ sub disambiguate
     # (c) Get the possible senses
     foreach my $i (0 .. scalar(@{$instance->{wordobjects}}) - 1)
     {
-        $instance->{wordobjects}->[$i]->computeSenses($wntools->{wn}, $self->{contextpos});
+        $instance->{wordobjects}->[$i]
+          ->computeSenses($wntools->{wn}, $self->{contextpos});
     }
 
     # Select context
     $instance = $self->{context}->process($instance);
+    return (
+        undef,
+"WordNet::SenseRelate::TargetWord->disambiguate() -- Error selecting the context."
+      )
+      if (!defined $instance);
+    $self->{tracestring} .= $self->{context}->getTraceString() if ($trace);
 
     # Postprocess the instance
     foreach my $postproc (@{$self->{postprocess}})
     {
         $instance = $postproc->postprocess($instance);
+        return (
+            undef,
+"WordNet::SenseRelate::TargetWord->disambiguate() -- Error postprocessing instance."
+          )
+          if (!defined $instance);
+        if ($trace)
+        {
+            $self->{tracestring} .=
+              "WordNet::SenseRelate::TargetWord ~ Postprocessing instance ("
+              . ($instance->{id}) . ").\n";
+            $self->{tracestring} .= $postproc->getTraceString();
+        }
     }
 
     # Get target sense
     $sense = $self->{algorithm}->disambiguate($instance);
-    
-    return $sense;
+    $self->{tracestring} .= $self->{algorithm}->getTraceString() if ($trace);
+
+    return ($sense, undef);
+}
+
+# Get the trace string, and reset the trace
+sub getTraceString
+{
+    my $self = shift;
+    return ""
+      if (   !defined $self
+          || !ref($self)
+          || ref($self) ne "WordNet::SenseRelate::TargetWord");
+    my $returnString = "";
+    $returnString = $self->{tracestring} if (defined $self->{tracestring});
+    $self->{tracestring} = "";
+    return $returnString;
 }
 
 1;
-
 
 __END__
 
@@ -305,7 +363,7 @@ http://groups.yahoo.com/group/senserelate/
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

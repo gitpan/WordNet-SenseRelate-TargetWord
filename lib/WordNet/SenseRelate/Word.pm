@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Word v0.06
-# (Last updated $Id: Word.pm,v 1.5 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Word v0.07
+# (Last updated $Id: Word.pm,v 1.6 2005/06/24 13:55:37 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Word;
 
@@ -7,7 +7,7 @@ use strict;
 use vars qw($VERSION @ISA);
 
 @ISA     = qw(Exporter);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 # Constructor for this module
 sub new
@@ -203,7 +203,7 @@ WordNet::QueryData(3)
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Context::NearestWords v0.01
-# (Last updated $Id: NearestWords.pm,v 1.7 2005/06/13 05:53:49 sidz1979 Exp $)
+# WordNet::SenseRelate::Context::NearestWords v0.02
+# (Last updated $Id: NearestWords.pm,v 1.9 2005/06/24 13:55:37 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Context::NearestWords;
 
@@ -8,33 +8,43 @@ use warnings;
 use Exporter;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Constructor for this module
 sub new
 {
-    my $class = shift;
+    my $class   = shift;
     my $wntools = shift;
-    my $trace = shift;
-    my $config = shift;
-    my $self  = {};
+    my $trace   = shift;
+    my $config  = shift;
+    my $self    = {};
 
     # Create the context selection object
     $class = ref $class || $class;
     bless($self, $class);
 
-    $self->{wntools} = $wntools; # Check for error here.
-    $self->{trace} = (($trace) ? 1 : 0);
-    $self->{stop} = {};
+    # Sanity check for wntools
+    if (   !defined $wntools
+        || !ref($wntools)
+        || ref($wntools) ne "WordNet::SenseRelate::Tools")
+    {
+        $wntools = WordNet::SenseRelate::Tools->new($wntools);
+        return undef if (!defined $wntools);
+    }
+    $self->{wntools} = $wntools;
+    $self->{trace}   = (($trace) ? 1 : 0);
+    $self->{stop}    = {};
 
     # Get options "window-size" and "stopwords".
-    if(defined $config && ref($config) eq "HASH")
+    if (defined $config && ref($config) eq "HASH")
     {
-        $self->{count} = $config->{windowsize} if(defined $config->{windowsize} && $config->{windowsize} =~ /[0-9]+/);
-        if(defined $config->{windowstop})
+        $self->{count} = $config->{windowsize}
+          if (defined $config->{windowsize}
+              && $config->{windowsize} =~ /[0-9]+/);
+        if (defined $config->{windowstop})
         {
             open(STOP, $config->{windowstop}) || return undef;
-            while(<STOP>)
+            while (<STOP>)
             {
                 s/[\r\f\n]//;
                 s/\s+$//;
@@ -44,9 +54,19 @@ sub new
             }
             close(STOP);
         }
-	$self->{contextpos} = $config->{contextpos} if(defined $config->{contextpos}
-                                                       && $config->{contextpos} =~ /^[nvar]+$/);
+        $self->{contextpos} = $config->{contextpos}
+          if (defined $config->{contextpos}
+              && $config->{contextpos} =~ /^[nvar]+$/);
     }
+
+    # Initialize traces
+    $self->{tracestring} = "";
+
+    # Options accepted by this module
+    $self->{optionlist}               = {};
+    $self->{optionlist}->{contextpos} = "s!!0!!nvar";
+    $self->{optionlist}->{windowsize} = "i!!0!!5";
+    $self->{optionlist}->{windowstop} = "f!!0!!";
 
     return $self;
 }
@@ -54,11 +74,12 @@ sub new
 # Select the context words from the context
 sub process
 {
-    my $self   = shift;
-    my $intext = shift;
-    my $count  = $self->{count};
-    my $poses  = $self->{poses};
+    my $self       = shift;
+    my $intext     = shift;
+    my $count      = $self->{count};
+    my $poses      = $self->{poses};
     my $contextpos = $self->{contextpos};
+    my $trace      = $self->{trace};
     $count = 5      if (!defined $count || $count !~ /^[0-9]+$/);
     $poses = "nvar" if (!defined $poses || $poses !~ /^[nvar]*$/);
     return undef if (!defined $self   || !ref $self);
@@ -115,6 +136,18 @@ sub process
         $targetptr                   = $intext->{target};
         $context->{targetword}       = $intext->{words}->[$targetptr];
         $context->{targetwordobject} = $intext->{wordobjects}->[$targetptr];
+        if ($trace)
+        {
+            $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Selected target word ";
+            $self->{tracestring} .= $context->{targetword};
+            $self->{tracestring} .= "\n";
+            $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Target word senses: ";
+            $self->{tracestring} .=
+              join(", ", $context->{targetwordobject}->getSenses());
+            $self->{tracestring} .= "\n";
+        }
     }
     else
     {
@@ -129,14 +162,27 @@ sub process
         if ($targetptr + $i < scalar(@{$intext->{wordobjects}}))
         {
             my $wordobj = $intext->{wordobjects}->[$i + $targetptr];
-            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos) if(defined $contextpos);
+            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos)
+              if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
-                if ($wordobj->{poslist} =~ $pos
+                if (   $wordobj->{poslist} =~ $pos
                     && scalar($wordobj->getSenses()) > 0
                     && !defined $self->{stop}->{$wordobj->getWord()})
                 {
                     push(@{$context->{contextwords}}, $wordobj);
+                    if ($trace)
+                    {
+                        $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Selected context word ";
+                        $self->{tracestring} .= $wordobj->getWord();
+                        $self->{tracestring} .= "\n";
+                        $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Context word senses: ";
+                        $self->{tracestring} .=
+                          join(", ", $wordobj->getSenses());
+                        $self->{tracestring} .= "\n";
+                    }
                     $done++;
                     last;
                 }
@@ -147,14 +193,27 @@ sub process
         if ($targetptr - $i >= 0)
         {
             my $wordobj = $intext->{wordobjects}->[$targetptr - $i];
-            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos) if(defined $contextpos);
+            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos)
+              if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
-                if ($wordobj->{poslist} =~ $pos
+                if (   $wordobj->{poslist} =~ $pos
                     && scalar($wordobj->getSenses()) > 0
                     && !defined $self->{stop}->{$wordobj->getWord()})
                 {
                     push(@{$context->{contextwords}}, $wordobj);
+                    if ($trace)
+                    {
+                        $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Selected context word ";
+                        $self->{tracestring} .= $wordobj->getWord();
+                        $self->{tracestring} .= "\n";
+                        $self->{tracestring} .=
+"WordNet::SenseRelate::Context::NearestWords ~ Context word senses: ";
+                        $self->{tracestring} .=
+                          join(", ", $wordobj->getSenses());
+                        $self->{tracestring} .= "\n";
+                    }
                     $done++;
                     last;
                 }
@@ -163,13 +222,28 @@ sub process
         }
         $i++;
     }
-    
+
     return $context;
+}
+
+# Get the trace string, and reset the trace
+sub getTraceString
+{
+    my $self = shift;
+    return ""
+      if (   !defined $self
+          || !ref($self)
+          || ref($self) ne "WordNet::SenseRelate::Context::NearestWords");
+    my $returnString = "";
+    $returnString = $self->{tracestring} if (defined $self->{tracestring});
+    $self->{tracestring} = "";
+    return $returnString;
 }
 
 1;
 
 __END__
+
 
 =head1 NAME
 
@@ -204,7 +278,7 @@ WordNet::SenseRelate::TargetWord(3)
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

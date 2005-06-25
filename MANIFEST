@@ -1,9 +1,14 @@
 FDL.txt
+doc/todo.pod
+doc/install.pod
 doc/framework.pdf
+doc/intro.pod
+doc/config.pod
+doc/modules.pod
 doc/aaai05.pdf
+doc/utils.pod
 doc/changelog.pod
 doc/acl05.pdf
-doc/todo.pod
 Changes
 GPL.txt
 t/WordNet-SenseRelate-TargetWord.t
@@ -21,9 +26,12 @@ lib/WordNet/SenseRelate/Context/NearestWords.pm
 README
 samples/senseval2.xml
 samples/sampleStop.txt
-samples/window-stop.txt
 samples/sample.conf
+samples/window-stop.txt
 Makefile.PL
+INSTALL
 MANIFEST
+utils/disamb-gui.pl
 utils/wps2sk.pl
 utils/disamb.pl
+META.yml                                 Module meta-data (added by MakeMaker)

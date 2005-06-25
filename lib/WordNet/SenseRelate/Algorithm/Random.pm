@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Algorithm::Random v0.01
-# (Last updated $Id: Random.pm,v 1.6 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Algorithm::Random v0.02
+# (Last updated $Id: Random.pm,v 1.8 2005/06/24 13:55:37 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Algorithm::Random;
 
@@ -8,7 +8,7 @@ use warnings;
 use Exporter;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Constructor for this module
 sub new
@@ -16,6 +16,7 @@ sub new
     my $class   = shift;
     my $wntools = shift;
     my $self    = {};
+    my $trace   = shift;
 
     # Create the preprocessor object
     $class = ref $class || $class;
@@ -34,6 +35,14 @@ sub new
     }
     $self->{wntools} = $wntools;
 
+    # No options accepted by this module
+    $self->{optionlist} = {};
+
+    # Initialize traces
+    $trace = 0 if (!defined $trace);
+    $self->{trace}       = $trace;
+    $self->{tracestring} = "";
+
     return $self;
 }
 
@@ -42,23 +51,54 @@ sub disambiguate
 {
     my $self    = shift;
     my $context = shift;
+    my $trace   = $self->{trace};
     return undef if (!defined $self || !ref $self || !defined $context);
     return undef
-      if (!defined $context->{targetwordobject} || !defined $context->{contextwords});
+      if (   !defined $context->{targetwordobject}
+          || !defined $context->{contextwords});
     return undef
       if (   ref($context->{contextwords}) ne "ARRAY"
           || ref($context->{targetwordobject}) ne "WordNet::SenseRelate::Word");
     my $targetWord   = $context->{targetwordobject};
     my @targetSenses = $targetWord->getSenses();
     return undef if (scalar(@targetSenses) <= 0);
+
+    if ($trace)
+    {
+        $self->{tracestring} .=
+          "WordNet::SenseRelate::Algorithm::Random ~ Target senses: "
+          . (join(", ", @targetSenses)) . "\n";
+    }
     my $count  = scalar(@targetSenses);
     my $random = int(rand($count));
+    if ($trace)
+    {
+        $self->{tracestring} .=
+          "WordNet::SenseRelate::Algorithm::Random ~ Random number ($random)\n";
+        $self->{tracestring} .=
+"WordNet::SenseRelate::Algorithm::Random ~ Selected sense = $targetSenses[$random]\n";
+    }
     return $targetSenses[$random];
+}
+
+# Get the trace string, and reset the trace
+sub getTraceString
+{
+    my $self = shift;
+    return ""
+      if (   !defined $self
+          || !ref($self)
+          || ref($self) ne "WordNet::SenseRelate::Algorithm::Random");
+    my $returnString = "";
+    $returnString = $self->{tracestring} if (defined $self->{tracestring});
+    $self->{tracestring} = "";
+    return $returnString;
 }
 
 1;
 
 __END__
+
 
 =head1 NAME
 
@@ -93,7 +133,7 @@ WordNet::SenseRelate::TargetWord(3)
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

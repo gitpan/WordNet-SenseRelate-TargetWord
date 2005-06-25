@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Preprocess::Compounds v0.01
-# (Last updated $Id: Compounds.pm,v 1.5 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Preprocess::Compounds v0.02
+# (Last updated $Id: Compounds.pm,v 1.7 2005/06/24 13:55:38 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Preprocess::Compounds;
 
@@ -10,7 +10,7 @@ use WordNet::SenseRelate::Tools;
 use WordNet::SenseRelate::Word;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Constructor for this module
 sub new
@@ -18,6 +18,8 @@ sub new
     my $class   = shift;
     my $wntools = shift;
     my $self    = {};
+    my $trace   = shift;
+    $trace = 0 if (!defined $trace);
 
     # Create the preprocessor object
     $class = ref $class || $class;
@@ -31,7 +33,12 @@ sub new
         $wntools = WordNet::SenseRelate::Tools->new($wntools);
         return undef if (!defined $wntools);
     }
-    $self->{wntools} = $wntools;
+    $self->{wntools}     = $wntools;
+    $self->{trace}       = $trace;
+    $self->{tracestring} = "";
+
+    # No options for this module
+    $self->{optionlist} = {};
 
     return $self;
 }
@@ -55,6 +62,7 @@ sub preprocess
     }
 
     return undef if (!defined $self || !defined $instance);
+    my $trace = $self->{trace};
 
     # Create empty context object
     # Instance Fields:
@@ -149,9 +157,25 @@ sub preprocess
     return $context;
 }
 
+# Get the trace string, and reset the trace
+sub getTraceString
+{
+    my $self = shift;
+    return ""
+      if (   !defined $self
+          || !ref($self)
+          || ref($self) ne "WordNet::SenseRelate::Preprocess::Compounds");
+    my $returnString = "";
+    $returnString = $self->{tracestring} if (defined $self->{tracestring});
+    $self->{tracestring} = "";
+    return $returnString;
+}
+
 1;
 
+
 __END__
+
 
 =head1 NAME
 
@@ -184,7 +208,7 @@ WordNet::SenseRelate::TargetWord
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
-Satanjeev Banerjee, satanjeev at cs.cmu.edu
+Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
 Ted Pedersen, tpederse at d.umn.edu
 

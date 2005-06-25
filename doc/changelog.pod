@@ -10,7 +10,54 @@ new version is released.
 
 =head1 DESCRIPTION
 
-=head2 Version 0.06
+=head2 Version 0.07 (Released 06/24/05)
+
+=over
+
+=item *
+
+06/23/05
+
+=over
+
+=item (1)
+
+Added graphical interface disamb-gui.pl. (Sid)
+
+=item (2)
+
+Added documentation. (Sid)
+
+=item (3)
+
+Added graphical interface senserelate.pl. (Sid)
+
+=back
+
+=back
+
+=over
+
+=item *
+
+06/19/05
+
+=over
+
+=item (1) 
+
+Added output traces to all the modules (Context.pm, Compounds.pm,
+Global.pm, Local.pm, Random.pm, SenseOne.pm). (Sid)
+
+=item (2)
+
+Fixed bug in Local.pm. (Sid)
+
+=back
+
+=back
+
+=head2 Version 0.06 (Released 06/13/05)
 
 =over
 
@@ -23,7 +70,7 @@ new version is released.
 =item (1)
 
 Converted the SenseRelate (v0.05) package to a modular package
-WordNet::SenseRelate::TargetWord.
+WordNet::SenseRelate::TargetWord. (Sid)
 
 =back
 

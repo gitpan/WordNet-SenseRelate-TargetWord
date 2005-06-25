@@ -19,7 +19,23 @@ should be moved into changelog.pod.
 
 =item *
 
-Add a Graphical Interface to the package. 
+Add a Graphical Interface to the package.
+
+=item *
+
+Add documentation to the package.
+
+=item *
+
+Add test scripts to the package.
+
+=item *
+
+Create graphical interface for plain text input for WSD.
+
+=item *
+
+Improve the man page documentation.
 
 =back
 
@@ -40,7 +56,14 @@ should be passed as an option to any of the algorithms that require it.
 
 =head1 AUTHORS
 
-Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev Banerjee
+Siddharth Patwardhan, University of Utah, Salt Lake City
+sidd at cs.utah.edu
+
+Ted Pedersen, University of Minnesota, Duluth
+tpederse at d.umn.edu
+
+Satanjeev Banerjee, Carnegie Mellon University, Pittsburgh
+banerjee+ at cs.cmu.edu
 
 =head1 BUGS
 
