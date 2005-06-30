@@ -9,7 +9,7 @@ my $author1 = 'Siddharth Patwardhan <sidd@cs.utah.edu>';
 my $author2 = 'Satanjeev Banerjee <banerjee+@cs.cmu.edu>';
 my $author3 = 'Ted Pedersen <tpederse@d.umn.edu>';
 
-my @installable = ("disamb.pl", "wps2sk.pl", "disamb-gui.pl");
+my @installable = ("disamb.pl", "wps2sk.pl", "disamb-gui.pl", "senserelate.pl");
 
 WriteMakefile(
     NAME              => 'WordNet::SenseRelate::TargetWord',

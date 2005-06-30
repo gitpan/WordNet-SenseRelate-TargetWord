@@ -34,4 +34,5 @@ MANIFEST
 utils/disamb-gui.pl
 utils/wps2sk.pl
 utils/disamb.pl
-META.yml                                 Module meta-data (added by MakeMaker)
+utils/senserelate.pl
+META.yml

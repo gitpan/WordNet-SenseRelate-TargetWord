@@ -1,5 +1,5 @@
 # WordNet::SenseRelate::Context::NearestWords v0.02
-# (Last updated $Id: NearestWords.pm,v 1.9 2005/06/24 13:55:37 sidz1979 Exp $)
+# (Last updated $Id: NearestWords.pm,v 1.13 2005/06/29 20:39:43 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Context::NearestWords;
 
@@ -50,7 +50,7 @@ sub new
                 s/\s+$//;
                 s/^\s+//;
                 my ($stopword) = split(/\s+/);
-                $self->{stop}->{$stopword} = 1;
+                $self->{stop}->{lc($stopword)} = 1;
             }
             close(STOP);
         }
@@ -136,6 +136,8 @@ sub process
         $targetptr                   = $intext->{target};
         $context->{targetword}       = $intext->{words}->[$targetptr];
         $context->{targetwordobject} = $intext->{wordobjects}->[$targetptr];
+        $context->{targetwordobject}->restrictSenses($contextpos)
+            if(defined $contextpos);
         if ($trace)
         {
             $self->{tracestring} .=
@@ -162,13 +164,13 @@ sub process
         if ($targetptr + $i < scalar(@{$intext->{wordobjects}}))
         {
             my $wordobj = $intext->{wordobjects}->[$i + $targetptr];
-            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos)
+            $wordobj->restrictSenses($contextpos)
               if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
                 if (   $wordobj->{poslist} =~ $pos
                     && scalar($wordobj->getSenses()) > 0
-                    && !defined $self->{stop}->{$wordobj->getWord()})
+                    && !defined $self->{stop}->{lc($wordobj->getWord())})
                 {
                     push(@{$context->{contextwords}}, $wordobj);
                     if ($trace)
@@ -189,17 +191,16 @@ sub process
             }
             last if ($done >= $count);
         }
-        $i++;
         if ($targetptr - $i >= 0)
         {
             my $wordobj = $intext->{wordobjects}->[$targetptr - $i];
-            $wordobj->computeSenses($self->{wntools}->{wn}, $contextpos)
+            $wordobj->restrictSenses($contextpos)
               if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
                 if (   $wordobj->{poslist} =~ $pos
                     && scalar($wordobj->getSenses()) > 0
-                    && !defined $self->{stop}->{$wordobj->getWord()})
+                    && !defined $self->{stop}->{lc($wordobj->getWord())})
                 {
                     push(@{$context->{contextwords}}, $wordobj);
                     if ($trace)

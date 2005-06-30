@@ -7,14 +7,25 @@ SYNOPSIS
     new version is released.
 
 DESCRIPTION
+  Version 0.08 (Released 06/30/05)
+    *   06/29/05
+
+        (1) Changed the contextpos-based sense restriction process. (Sid)
+
+        (2) Made some changes to README. (Sid)
+
+    *   06/26/05
+
+        (1) Added graphical interface senserelate.pl. (Sid)
+
+        (2) Fixed bug in context selection module. (Sid)
+
   Version 0.07 (Released 06/24/05)
     *   06/23/05
 
         (1) Added graphical interface disamb-gui.pl. (Sid)
 
         (2) Added documentation. (Sid)
-
-        (3) Added graphical interface senserelate.pl. (Sid)
 
     *   06/19/05
 

@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Word v0.07
-# (Last updated $Id: Word.pm,v 1.6 2005/06/24 13:55:37 sidz1979 Exp $)
+# WordNet::SenseRelate::Word v0.08
+# (Last updated $Id: Word.pm,v 1.9 2005/06/29 20:39:40 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Word;
 
@@ -7,7 +7,7 @@ use strict;
 use vars qw($VERSION @ISA);
 
 @ISA     = qw(Exporter);
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 # Constructor for this module
 sub new
@@ -27,7 +27,7 @@ sub new
     {
         my $pos = "nvar";
         $pos = $1 if ($word =~ /\#([nvar]+)$/);
-        $word =~ s/\#.//;
+        $word =~ s/\#.*//;
         $self->{word}    = $word;
         $self->{poslist} = $pos;
     }
@@ -164,7 +164,88 @@ sub computeSenses
     $self->{poslist} = $newPosList;
 }
 
+# Retrieve all senses for the inherent sense restriction
+sub retrieveSenses
+{
+    my $self = shift;
+    my $wn   = shift;
+    
+    return if (!defined $self || !ref $self);
+    return if (!defined $wn || !ref($wn) || ref($wn) ne "WordNet::QueryData");
+    return if (!defined $self->{word} || $self->{word} eq "");
+
+    # First try the surface form
+    my $tmpWord    = lc($self->{word});
+    my $speeches   = $self->{poslist};
+    $speeches   = "nvar" if(!defined $speeches);
+    my @poslist    = split(//, $speeches);
+    my $newPosList = "";
+    $self->{forms}  = [];
+    $self->{senses} = [];
+    foreach my $pos (@poslist)
+    {
+        my @senseList = $wn->querySense($tmpWord . "\#" . $pos);
+        if (scalar(@senseList) > 0)
+        {
+            push(@{$self->{forms}},  $tmpWord);
+            push(@{$self->{senses}}, @senseList);
+            $newPosList .= $pos;
+        }
+    }
+
+    # If the surface form was not found in WordNet, ask WordNet for suggestions
+    if (scalar(@{$self->{senses}}) <= 0)
+    {
+        $newPosList = "";
+        foreach my $pos (@poslist)
+        {
+            my @forms = $wn->validForms(($self->{word}) . "\#" . $pos);
+            foreach my $form (@forms)
+            {
+                my @senseList = $wn->querySense($form);
+                if (scalar(@senseList) > 0)
+                {
+                    $form =~ s/\#.*//g;
+                    push(@{$self->{forms}},  $form);
+                    push(@{$self->{senses}}, @senseList);
+                }
+            }
+            $newPosList .= $pos if (scalar(@forms) > 0);
+        }
+    }
+
+    $self->{poslist} = $newPosList;
+}
+
+# Remove senses corresponding to a particular part of speech
+sub restrictSenses
+{
+    my $self = shift;
+    my $postag = shift;
+
+    return if (!defined $self || !ref $self);
+    return if (!defined $postag || $postag eq "");
+    return if (!defined $self->{senses} || ref($self->{senses}) ne "ARRAY");
+    
+    my @newSenses = ();
+    foreach my $sense (@{$self->{senses}})
+    {
+        foreach my $theTag (split(//, $postag))
+        {
+            if($sense =~ /\#$theTag\#[0-9]+$/)
+            {
+                push(@newSenses, $sense);
+                last;
+            }
+        }
+    }
+
+    $self->{senses} = [@newSenses];
+}
+
+
 1;
+
 
 __END__
 
@@ -178,7 +259,11 @@ WordNet::SenseRelate::Word - Perl module that represents a single word from the 
 
   $object = WordNet::SenseRelate::Word->new("balloon");
 
-  $object->computeSenses($wn, "n");
+  $object->retrieveSenses($wn, "nva");
+
+  $object->restrictSenses("n");
+
+  @senses = $object->getSenses();
 
 =head1 DESCRIPTION
 

@@ -179,21 +179,21 @@ UTILITIES
         read a Senseval2 lexical sample file, and then disambiguates each of
         the instances using the WordNet::SenseRelate::TargetWord module.
 
-        Usage: disamb.pl [ [--config FILE] [--wnpath WNPATH] [--trace]
-        XMLFILE | --help | --version]
+        Usage: disamb.pl [ [--config FILE] [--wnpath WNPATH] [--trace] XMLFILE | --help | --version]
 
-        --config=*FILENAME* Specifies a configuration file (FILENAME) to set
-        up the various configuration options.
+        --config=FILENAME  Specifies a configuration file (FILENAME) to set
+                           up the various configuration options.
 
-        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
-        files. Ordinarily, this path is determined from the $WNHOME
-        environment variable. But this option overides this behavior.
+        --wnpath=WNPATH    WNPATH specifies the path of the WordNet data
+                           files. Ordinarily, this path is determined from
+                           the $WNHOME environment variable. But this option
+                           overides this behavior.
 
-        --trace Indicates that trace information be printed.
+        --trace            Indicates that trace information be printed.
 
-        --help Displays this help screen.
+        --help             Displays this help screen.
 
-        --version Displays version information.
+        --version          Displays version information.
 
         Example:
 
@@ -214,19 +214,20 @@ UTILITIES
         organizers, we need to covert the output of disamb.pl to the
         "SenseKey" format.
 
-        Usage: wps2sk.pl [ [ --wnpath WNPATH] [FILE...] | --help | --version
-        ]
+        Usage: wps2sk.pl [ [ --wnpath WNPATH] [FILE...] | --help | --version ]
 
-        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
-        files. Ordinarily, this path is determined from the $WNHOME
-        environment variable. But this option overides this behavior.
+        --wnpath=WNPATH   WNPATH specifies the path of the WordNet data
+                          files. Ordinarily, this path is determined from
+                          the $WNHOME environment variable. But this option
+                          overides this behavior.
 
-        --quiet Run in quiet mode -- does not print informational messages.
-        But it does print warning or error messages if any.
+        --quiet           Run in quiet mode -- does not print informational
+                          messages. But it does print warning or error messages
+                          if any.
 
-        --help Displays this help screen.
+        --help            Displays this help screen.
 
-        --version Displays version information.
+        --version         Displays version information.
 
         Example:
 
@@ -245,19 +246,19 @@ UTILITIES
         Senseval2 lexical sample file, and then allows the user to pick the
         instances that she wishes to disambiguate.
 
-        Usage: disamb-gui.pl [ [--config FILE] [--wnpath WNPATH] [XMLFILE] |
-        --help | --version]
+        Usage: disamb-gui.pl [ [--config FILE] [--wnpath WNPATH] [XMLFILE] | --help | --version]
 
-        --config=*FILENAME* Specifies a configuration file (FILENAME) to set
-        up the various configuration options.
+        --config=FILENAME   Specifies a configuration file (FILENAME) to set
+                            up the various configuration options.
 
-        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
-        files. Ordinarily, this path is determined from the $WNHOME
-        environment variable. But this option overides this behavior.
+        --wnpath=WNPATH     WNPATH specifies the path of the WordNet data
+                            files. Ordinarily, this path is determined from
+                            the $WNHOME environment variable. But this option
+                            overides this behavior.
 
-        --help Displays this help screen.
+        --help              Displays this help screen.
 
-        --version Displays version information.
+        --version           Displays version information.
 
 CONFIGURATION FILE
     A configuration file can be passed to both, disamb.pl as well as to
@@ -297,31 +298,35 @@ CONFIGURATION FILE
 
     Example config file:
 
-    *WordNet::SenseRelate::TargetWord*
+      WordNet::SenseRelate::TargetWord
 
-    *[SECTION:PREPROCESS]*
+      [SECTION:PREPROCESS]
 
-    *[START WordNet::SenseRelate::Preprocess::Compounds]*
+      [START WordNet::SenseRelate::Preprocess::Compounds]
 
-    *[END]*
+      [END]
 
-    *[SECTION:CONTEXT]*
+      [SECTION:CONTEXT]
 
-    *[START WordNet::SenseRelate::Context::NearestWords]*
+      [START WordNet::SenseRelate::Context::NearestWords]
 
-    *windowsize=5*
+      windowsize=5
 
-    *windowstop=/home/sid/window-stop.txt*
+      windowstop=/home/sid/window-stop.txt
 
-    *[END]*
+      contextpos=n
 
-    *[SECTION:POSTPROCESS]*
+      [END]
 
-    *[SECTION:ALGORITHM]*
+      [SECTION:POSTPROCESS]
 
-    *[START WordNet::SenseRelate::Algorithm::Local]*
+      [SECTION:ALGORITHM]
 
-    *[END]*
+      [START WordNet::SenseRelate::Algorithm::Local]
+
+      measure=WordNet::Similarity::vector
+
+      [END]
 
     The above config file has four sections -- PREPROCESS, CONTEXT,
     POSTPROCESS and ALGORITHM. The PREPROCESS section contains a single
@@ -329,7 +334,7 @@ CONFIGURATION FILE
     section lists one module (NearestWords), with parameters *windowsize*
     and *windowstop*. There are no modules listed in the POSTPROCESS
     section. The ALGORITHM section lists the Local disambiguation algorithm
-    module, also with no config parameters.
+    module, also with the *measure* specified.
 
 SOFTWARE COPYRIGHT AND LICENSE
     Copyright (C) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev

@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::TargetWord v0.07
-# (Last Updated $Id: TargetWord.pm,v 1.11 2005/06/24 13:55:37 sidz1979 Exp $)
+# WordNet::SenseRelate::TargetWord v0.08
+# (Last Updated $Id: TargetWord.pm,v 1.13 2005/06/29 20:39:40 sidz1979 Exp $)
 package WordNet::SenseRelate::TargetWord;
 
 use 5.006;
@@ -12,7 +12,7 @@ our @ISA         = qw(Exporter);
 our %EXPORT_TAGS = ('all' => [qw()]);
 our @EXPORT_OK   = (@{$EXPORT_TAGS{'all'}});
 our @EXPORT      = qw();
-our $VERSION     = '0.07';
+our $VERSION     = '0.08';
 
 # CONSTRUCTOR: Creates new SenseRelate::TargetWord object.
 # Returns the created object.
@@ -268,7 +268,9 @@ sub disambiguate
     foreach my $i (0 .. scalar(@{$instance->{wordobjects}}) - 1)
     {
         $instance->{wordobjects}->[$i]
-          ->computeSenses($wntools->{wn}, $self->{contextpos});
+          ->retrieveSenses($wntools->{wn});
+	$instance->{wordobjects}->[$i]
+          ->restrictSenses($self->{contextpos});
     }
 
     # Select context
