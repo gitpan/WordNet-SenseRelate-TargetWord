@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Algorithm::Global v0.02
-# (Last updated $Id: Global.pm,v 1.8 2005/06/25 04:27:01 sidz1979 Exp $)
+# WordNet::SenseRelate::Algorithm::Global v0.09
+# (Last updated $Id: Global.pm,v 1.10 2006/12/24 12:18:45 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Algorithm::Global;
 
@@ -8,7 +8,7 @@ use warnings;
 use Exporter;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.02';
+our $VERSION = '0.09';
 
 # Constructor for this module
 sub new
@@ -38,7 +38,7 @@ sub new
     $self->{wntools} = $wntools;
 
     # Load Similarity module
-    my $modulePath   = "WordNet::Similarity::vector";
+    my $modulePath   = "WordNet::Similarity::jcn";
     my $moduleName   = $modulePath;
     my $moduleConfig = undef;
     if (defined $config && ref($config) eq "HASH")
@@ -73,7 +73,7 @@ sub new
 
     # Options accepted by this module
     $self->{optionlist}                  = {};
-    $self->{optionlist}->{measure}       = "m!!0!!WordNet::Similarity::vector";
+    $self->{optionlist}->{measure}       = "m!!0!!WordNet::Similarity::jcn";
     $self->{optionlist}->{measureconfig} = "f!!0!!";
 
     # Initialize traces
@@ -249,15 +249,15 @@ WordNet::SenseRelate::TargetWord(3)
 
 =head1 AUTHOR
 
+Ted Pedersen, tpederse at d.umn.edu
+
 Siddharth Patwardhan, sidd at cs.utah.edu
 
 Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
-Ted Pedersen, tpederse at d.umn.edu
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Siddharth Patwardhan, Satanjeev Banerjee and Ted Pedersen
+Copyright (C) 2005 by Ted Pedersen, Siddharth Patwardhan, and Satanjeev Banerjee
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

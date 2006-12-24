@@ -1,10 +1,12 @@
-# WordNet::SenseRelate::TargetWord v0.08
-# (Last Updated $Id: TargetWord.pm,v 1.13 2005/06/29 20:39:40 sidz1979 Exp $)
+# WordNet::SenseRelate::TargetWord v0.09
+# (Last Updated $Id: TargetWord.pm,v 1.16 2006/12/24 12:39:19 sidz1979 Exp $)
 package WordNet::SenseRelate::TargetWord;
 
 use 5.006;
 use strict;
 use warnings;
+
+use WordNet::SenseRelate::Tools;
 
 require Exporter;
 
@@ -12,7 +14,7 @@ our @ISA         = qw(Exporter);
 our %EXPORT_TAGS = ('all' => [qw()]);
 our @EXPORT_OK   = (@{$EXPORT_TAGS{'all'}});
 our @EXPORT      = qw();
-our $VERSION     = '0.08';
+our $VERSION     = '0.09';
 
 # CONSTRUCTOR: Creates new SenseRelate::TargetWord object.
 # Returns the created object.
@@ -28,16 +30,18 @@ sub new
 
     # Set the default options first
     $modules->{preprocess} = [];
-    push(
-         @{$modules->{preprocess}},
-         "WordNet::SenseRelate::Preprocess::Compounds"
-    );
+
+    # Compound detection no longer done by default
+    # push(
+    #      @{$modules->{preprocess}},
+    #      "WordNet::SenseRelate::Preprocess::Compounds"
+    # );
     $modules->{preprocessconfig} = [];
     $modules->{context}       = "WordNet::SenseRelate::Context::NearestWords";
     $modules->{contextconfig} = undef;
     $modules->{postprocess}   = [];
     $modules->{postprocessconfig} = [];
-    $modules->{algorithm}         = "WordNet::SenseRelate::Algorithm::SenseOne";
+    $modules->{algorithm}         = "WordNet::SenseRelate::Algorithm::Local";
     $modules->{algorithmconfig}   = undef;
     $modules->{wntools}           = undef;
 
@@ -45,81 +49,101 @@ sub new
     my $options = shift;
     my $trace   = shift;
     $trace = 0 if (!defined $trace);
-    if (defined $options && ref($options) eq "HASH")
+    if(defined $options && ref $options eq "HASH")
     {
-
         # Get the Preprocessor modules
-        if (defined $options->{preprocess}
-            && ref($options->{preprocess}) eq "ARRAY")
+        if(defined $options->{preprocess} && ref $options->{preprocess} eq "ARRAY")
         {
             $modules->{preprocess} = [];
             push(@{$modules->{preprocess}}, @{$options->{preprocess}});
         }
+	elsif(defined $options->{preprocess})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (preprocess).");
+        }
 
         # Get configuration options for preprocessor modules
-        if (defined $options->{preprocessconfig}
-            && ref($options->{preprocessconfig}) eq "ARRAY")
+        if(defined $options->{preprocessconfig} && ref $options->{preprocessconfig} eq "ARRAY")
         {
             $modules->{preprocessconfig} = [];
-            push(
-                 @{$modules->{preprocessconfig}},
-                 @{$options->{preprocessconfig}}
-            );
+            push(@{$modules->{preprocessconfig}}, @{$options->{preprocessconfig}});
+        }
+	elsif(defined $options->{preprocessconfig})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (preprocessconfig).");
         }
 
         # Get context selection module
         $modules->{context} = $options->{context}
-          if (defined $options->{context});
+          if(defined $options->{context} && !ref $options->{context});
+        return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (context).")
+          if(defined $options->{context} && ref $options->{context});
 
         # Get configuration options for context selection module
-        $modules->{contextconfig} = $options->{contextconfig}
-          if (defined $options->{contextconfig}
-              && ref($options->{contextconfig}) eq "HASH");
+        if(defined $options->{contextconfig} && ref $options->{contextconfig} eq "HASH")
+        {
+            $modules->{contextconfig} = $options->{contextconfig};
+        }
+	elsif(defined $options->{contextconfig})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (contextconfig).");
+        }
 
         # Get postprocess modules
-        if (defined $options->{postprocess}
-            && ref($options->{postprocess}) eq "ARRAY")
+        if(defined $options->{postprocess} && ref $options->{postprocess} eq "ARRAY")
         {
             $modules->{postprocess} = [];
             push(@{$modules->{postprocess}}, @{$options->{postprocess}});
         }
+	elsif(defined $options->{postprocess})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (postprocess).");
+        }
 
         # Get configuration options for postprocess modules
-        if (defined $options->{postprocessconfig}
-            && ref($options->{postprocessconfig}) eq "ARRAY")
+        if(defined $options->{postprocessconfig} && ref $options->{postprocessconfig} eq "ARRAY")
         {
             $modules->{postprocessconfig} = [];
-            push(
-                 @{$modules->{postprocessconfig}},
-                 @{$options->{postprocessconfig}}
-            );
+            push(@{$modules->{postprocessconfig}}, @{$options->{postprocessconfig}});
+        }
+	elsif(defined $options->{postprocessconfig})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (postprocessconfig).");
         }
 
         # Get algorithm module
         $modules->{algorithm} = $options->{algorithm}
-          if (defined $options->{algorithm});
+          if(defined $options->{algorithm} && !ref $options->{algorithm});
+        return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (algorithm).")
+          if(defined $options->{algorithm} && ref $options->{algorithm});
 
         # Get configuration options for algorithm module
-        $modules->{algorithmconfig} = $options->{algorithmconfig}
-          if (defined $options->{algorithmconfig});
+        if(defined $options->{algorithmconfig} && ref $options->{algorithmconfig} eq "HASH")
+        {
+          $modules->{algorithmconfig} = $options->{algorithmconfig}
+        }
+	elsif(defined $options->{algorithmconfig})
+        {
+            return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure (algorithmconfig).");
+        }
 
         # Get the WordNet::SenseRelate::Tools
         $modules->{wntools} = $options->{wntools}
-          if (defined $options->{wntools}
-              && ref($options->{wntools}) eq "WordNet::SenseRelate::Tools");
+          if(defined $options->{wntools} && ref($options->{wntools}) eq "WordNet::SenseRelate::Tools");
+        return (undef, "WordNet::SenseRelate::TargetWord->new() -- Unknown/illegal WordNet::SenseRelate::Tools object given.")
+          if(defined $options->{wntools} && ref $options->{wntools} ne "WordNet::SenseRelate::Tools");
+    }
+    elsif(defined($options))
+    {
+        return (undef, "WordNet::SenseRelate::TargetWord->new() -- Malformed 'options' data structure.");
     }
 
     # Load WordNet::SenseRelate::Tools
     my $wntools = $modules->{wntools};
-    if (   !defined $wntools
-        || !ref $wntools
-        || ref($wntools) ne "WordNet::SenseRelate::Tools")
+    if(!defined $wntools || !ref $wntools || ref($wntools) ne "WordNet::SenseRelate::Tools")
     {
         $wntools = WordNet::SenseRelate::Tools->new($wntools);
-        return (
-            undef,
-"WordNet::SenseRelate::TargetWord->new() -- Unable to load WordNet::SenseRelate::Tools"
-          )
+        return (undef, "WordNet::SenseRelate::TargetWord->new() -- Unable to load WordNet::SenseRelate::Tools")
           if (!defined $wntools);
     }
     $self->{wntools} = $wntools;
@@ -267,18 +291,22 @@ sub disambiguate
     # (c) Get the possible senses
     foreach my $i (0 .. scalar(@{$instance->{wordobjects}}) - 1)
     {
-        $instance->{wordobjects}->[$i]
-          ->retrieveSenses($wntools->{wn});
-	$instance->{wordobjects}->[$i]
-          ->restrictSenses($self->{contextpos});
+      # Get the sense for all the words
+      $instance->{wordobjects}->[$i]->retrieveSenses($wntools->{wn});
+
+      # Apply contextpos (POS-capability of sim module) to all words
+      $instance->{wordobjects}->[$i]->restrictSenses($self->{contextpos});
+
+      # Apply targetpos to target wordobject
+      $instance->{wordobjects}->[$i]->restrictSenses($instance->{targetpos})
+        if(defined $instance->{target}
+           && $instance->{target} == $i
+           && defined $instance->{targetpos});
     }
 
     # Select context
     $instance = $self->{context}->process($instance);
-    return (
-        undef,
-"WordNet::SenseRelate::TargetWord->disambiguate() -- Error selecting the context."
-      )
+    return (undef, "WordNet::SenseRelate::TargetWord->disambiguate() -- Error selecting the context.")
       if (!defined $instance);
     $self->{tracestring} .= $self->{context}->getTraceString() if ($trace);
 
@@ -286,19 +314,22 @@ sub disambiguate
     foreach my $postproc (@{$self->{postprocess}})
     {
         $instance = $postproc->postprocess($instance);
-        return (
-            undef,
-"WordNet::SenseRelate::TargetWord->disambiguate() -- Error postprocessing instance."
-          )
+        return (undef, "WordNet::SenseRelate::TargetWord->disambiguate() -- Error postprocessing instance.")
           if (!defined $instance);
         if ($trace)
         {
-            $self->{tracestring} .=
-              "WordNet::SenseRelate::TargetWord ~ Postprocessing instance ("
-              . ($instance->{id}) . ").\n";
+            $self->{tracestring} .= "WordNet::SenseRelate::TargetWord ~ Postprocessing instance (".($instance->{id}).").\n";
             $self->{tracestring} .= $postproc->getTraceString();
         }
     }
+
+    # Debug output...
+    #foreach my $wobj (@{$instance->{contextwords}})
+    #{
+    #  my $daWord = $wobj->getWord();
+    #  my @daSenses = $wobj->getSenses();
+    #  print STDERR "$daWord: ".(join(", ", @daSenses))."\n";
+    #}
 
     # Get target sense
     $sense = $self->{algorithm}->disambiguate($instance);
@@ -345,7 +376,83 @@ process. It allows the user to select the disambiguation algorithm, the context 
 and other data processing tasks. This module applies these to the context and returns the selected
 sense.
 
-=head2 EXPORT
+=head1 USING THE API (WITH EXAMPLE CODE)
+
+The WordNet::SenseRelate::TargetWord module handles the managerial task of initializing the
+processing modules, initializing the data and passing it between modules. The following pieces of
+code can serve as a guide for using the module to disambiguate a word within its context.
+
+We would start by initializing the module:
+
+  use WordNet::SenseRelate::TargetWord;
+
+  # Create a hash with the config options
+  my %wsd_options = (preprocess => [],
+                     preprocessconfig => [],
+                     context => 'WordNet::SenseRelate::Context::NearestWords',
+                     contextconfig => {(windowsize => 5,
+                                       contextpos => 'n')},
+                     algorithm => 'WordNet::SenseRelate::Algorithm::Local',
+                     algorithmconfig => {(measure => 'WordNet::Similarity::res')});
+
+  # Initialize the object
+  my ($wsd, $error) = WordNet::SenseRelate::TargetWord->new(\%wsd_options, 0);
+
+In the current implementation, an "instance" is a hash reference with these fields: "text", "words",
+"head", "target", "wordobjects", "lexelt", "id", "answer" and "targetpos". The values of the hash
+reference corresponding to "text", "words" and "wordobjects" are array references. The remaining
+values are scalars. So an instance object can be created like so:
+
+  my $hashRef = {};             # Creates a reference to an empty hash.
+  $hashRef->{text} = [];        # Value is an empty array ref.
+  $hashRef->{words} = [];       # Value is an empty array ref.
+  $hashRef->{wordobjects} = []; # Value is an empty array ref.
+  $hashRef->{head} = -1;        # Index into the text array (initialized to -1)
+  $hashRef->{target} = -1;      # Index into the words & wordobjects arrays (initialized to -1)
+  $hashRef->{lexelt} = "";      # Lexical element (terminology from Senseval2)
+  $hashRef->{id} = "";          # Some ID assigned to this instance
+  $hashRef->{answer} = "";      # Answer key (only required for evaluation)
+  $hashRef->{targetpos} = "";   # Part-of-speech of the target word (if known).
+
+The ones that are important to us are wordobjects and target. The wordobjects array is an array of
+WordNet::SenseRelate::Word objects. Given a word (say "bank"), a WordNet::SenseRelate::Word object
+can be created like this:
+
+  use WordNet::SenseRelate::Word;
+
+  my $wordobj = WordNet::SenseRelate::Word->new("bank");
+
+The wordobject array represents a sentence/paragraph containing the word to be disambiguated. The
+target field is an index into this array, pointing to the word to be disambiguated. So, for a given
+example sentence, the disambiguation code would be as follows:
+
+  my @sentence = ("The", "boat", "ran", "aground", "on", "the", "river", "bank");
+  foreach my $theword (@sentence)
+  {
+    my $wordobj = WordNet::SenseRelate::Word->new($theword);
+    push(@{$hashRef->{wordobjects}}, $wordobj);
+    push(@{$hashRef->{words}}, $theword);
+  }
+  $hashRef->{target} = 7;        # Index of "bank"
+  $hashRef->{id} = "Instance1";  # ID can be any string.
+
+The remaining fields are not really used by the system, but they could be initialized (for use later
+in the system):
+
+  $hashRef->{lexelt} = "bank.n";
+  $hashRef->{answer} = "bank#n#1";
+  $hashRef->{targetpos} = "n";        # n, v, a or r
+  $hashRef->{text} = [("The boat ran aground on the river", "bank")];
+  $hashRef->{head} = 1;               # Index to bank
+
+Finally, the disambiguation is done as follows:
+
+  my ($sense, $error) = $wsd->disambiguate($hashRef);
+  print "$sense\n";
+
+The scalar $sense contains the selected sense of the target word, and can be processed as required.
+
+=head1 EXPORT
 
 None by default.
 
@@ -355,23 +462,23 @@ perl(1)
 
 WordNet::Similarity(3)
 
-http://www.cogsci.princeton.edu/~wn/
+http://wordnet.princeton.edu
 
 http://senserelate.sourceforge.net
 
-http://groups.yahoo.com/group/senserelate/
+http://groups.yahoo.com/group/senserelate
 
 =head1 AUTHOR
+
+Ted Pedersen, tpederse at d.umn.edu
 
 Siddharth Patwardhan, sidd at cs.utah.edu
 
 Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
-Ted Pedersen, tpederse at d.umn.edu
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2005 by Siddharth Patwardhan, Satanjeev Banerjee and Ted Pedersen
+Copyright (c) 2005 by Ted Pedersen, Siddharth Patwardhan and Satanjeev Banerjee
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

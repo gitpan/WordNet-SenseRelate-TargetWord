@@ -158,20 +158,20 @@ DESCRIPTION
         available from http://search.cpan.org/dist/Gtk-Perl/
 
 AUTHORS
+     Ted Pedersen, University of Minnesota Duluth
+     tpederse at d.umn.edu
+
      Siddharth Patwardhan, University of Utah, Salt Lake City
      sidd at cs.utah.edu
 
      Satanjeev Banerjee, Carnegie Mellon University, Pittsburgh
      banerjee+ at cs.cmu.edu
 
-     Ted Pedersen, University of Minnesota Duluth
-     tpederse at d.umn.edu
-
 SEE ALSO
     intro.pod modules.pod
 
 COPYRIGHT AND LICENSE
-    Copyright (C) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev
+    Copyright (C) 2005 Ted Pedersen, Siddharth Patwardhan, and Satanjeev
     Banerjee
 
     Permission is granted to copy, distribute and/or modify this document

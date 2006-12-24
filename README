@@ -181,19 +181,18 @@ UTILITIES
 
         Usage: disamb.pl [ [--config FILE] [--wnpath WNPATH] [--trace] XMLFILE | --help | --version]
 
-        --config=FILENAME  Specifies a configuration file (FILENAME) to set
-                           up the various configuration options.
+        --config=*FILENAME* Specifies a configuration file (FILENAME) to set
+        up the various configuration options.
 
-        --wnpath=WNPATH    WNPATH specifies the path of the WordNet data
-                           files. Ordinarily, this path is determined from
-                           the $WNHOME environment variable. But this option
-                           overides this behavior.
+        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
+        files. Ordinarily, this path is determined from the $WNHOME
+        environment variable. But this option overides this behavior.
 
-        --trace            Indicates that trace information be printed.
+        --trace Indicates that trace information be printed.
 
-        --help             Displays this help screen.
+        --help Displays this help screen.
 
-        --version          Displays version information.
+        --version Displays version information.
 
         Example:
 
@@ -214,20 +213,18 @@ UTILITIES
         organizers, we need to covert the output of disamb.pl to the
         "SenseKey" format.
 
-        Usage: wps2sk.pl [ [ --wnpath WNPATH] [FILE...] | --help | --version ]
+        Usage: wps2sk.pl [ [--wnpath WNPATH] [FILE...] | --help | --version]
 
-        --wnpath=WNPATH   WNPATH specifies the path of the WordNet data
-                          files. Ordinarily, this path is determined from
-                          the $WNHOME environment variable. But this option
-                          overides this behavior.
+        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
+        files. Ordinarily, this path is determined from the $WNHOME
+        environment variable. But this option overides this behavior.
 
-        --quiet           Run in quiet mode -- does not print informational
-                          messages. But it does print warning or error messages
-                          if any.
+        --quiet Run in quiet mode -- does not print informational messages.
+        But it does print warning or error messages if any.
 
-        --help            Displays this help screen.
+        --help Displays this help screen.
 
-        --version         Displays version information.
+        --version Displays version information.
 
         Example:
 
@@ -248,17 +245,16 @@ UTILITIES
 
         Usage: disamb-gui.pl [ [--config FILE] [--wnpath WNPATH] [XMLFILE] | --help | --version]
 
-        --config=FILENAME   Specifies a configuration file (FILENAME) to set
-                            up the various configuration options.
+        --config=*FILENAME* Specifies a configuration file (FILENAME) to set
+        up the various configuration options.
 
-        --wnpath=WNPATH     WNPATH specifies the path of the WordNet data
-                            files. Ordinarily, this path is determined from
-                            the $WNHOME environment variable. But this option
-                            overides this behavior.
+        --wnpath=*WNPATH* WNPATH specifies the path of the WordNet data
+        files. Ordinarily, this path is determined from the $WNHOME
+        environment variable. But this option overides this behavior.
 
-        --help              Displays this help screen.
+        --help Displays this help screen.
 
-        --version           Displays version information.
+        --version Displays version information.
 
 CONFIGURATION FILE
     A configuration file can be passed to both, disamb.pl as well as to
@@ -298,35 +294,31 @@ CONFIGURATION FILE
 
     Example config file:
 
-      WordNet::SenseRelate::TargetWord
+    *WordNet::SenseRelate::TargetWord*
 
-      [SECTION:PREPROCESS]
+    *[SECTION:PREPROCESS]*
 
-      [START WordNet::SenseRelate::Preprocess::Compounds]
+    *[START WordNet::SenseRelate::Preprocess::Compounds]*
 
-      [END]
+    *[END]*
 
-      [SECTION:CONTEXT]
+    *[SECTION:CONTEXT]*
 
-      [START WordNet::SenseRelate::Context::NearestWords]
+    *[START WordNet::SenseRelate::Context::NearestWords]*
 
-      windowsize=5
+    *windowsize=5*
 
-      windowstop=/home/sid/window-stop.txt
+    *windowstop=/home/sid/window-stop.txt*
 
-      contextpos=n
+    *[END]*
 
-      [END]
+    *[SECTION:POSTPROCESS]*
 
-      [SECTION:POSTPROCESS]
+    *[SECTION:ALGORITHM]*
 
-      [SECTION:ALGORITHM]
+    *[START WordNet::SenseRelate::Algorithm::Local]*
 
-      [START WordNet::SenseRelate::Algorithm::Local]
-
-      measure=WordNet::Similarity::vector
-
-      [END]
+    *[END]*
 
     The above config file has four sections -- PREPROCESS, CONTEXT,
     POSTPROCESS and ALGORITHM. The PREPROCESS section contains a single
@@ -334,10 +326,91 @@ CONFIGURATION FILE
     section lists one module (NearestWords), with parameters *windowsize*
     and *windowstop*. There are no modules listed in the POSTPROCESS
     section. The ALGORITHM section lists the Local disambiguation algorithm
-    module, also with the *measure* specified.
+    module, also with no config parameters.
+
+EXAMPLE USAGE AS AN APPLICATION PROGRAMMING INTERFACE
+    The WordNet::SenseRelate::TargetWord module handles the managerial task
+    of initializing the processing modules, initializing the data and
+    passing it between modules. The following pieces of code can serve as a
+    guide for using the module to disambiguate a word within its context.
+
+    We would start by initializing the module:
+
+        use WordNet::SenseRelate::TargetWord;
+
+        # Create a hash with the config options
+        my %wsd_options = (preprocess => [],
+                           preprocessconfig => [],
+                           context => 'WordNet::SenseRelate::Context::NearestWords',
+                           contextconfig => {(windowsize => 5,
+                                              contextpos => 'n')},
+                           algorithm => 'WordNet::SenseRelate::Algorithm::Local',
+                           algorithmconfig => {(measure => 'WordNet::Similarity::res')});
+
+        # Initialize the object
+        my ($wsd, $error) = WordNet::SenseRelate::TargetWord->new(\%wsd_options, 0);
+
+    In the current implementation, an "instance" is a hash reference with
+    these fields: "text", "words", "head", "target", "wordobjects",
+    "lexelt", "id", "answer" and "targetpos". The values of the hash
+    reference corresponding to "text", "words" and "wordobjects" are array
+    references. The remaining values are scalars. So an instance object can
+    be created like so:
+
+        my $hashRef = {};             # Creates a reference to an empty hash.
+        $hashRef->{text} = [];        # Value is an empty array ref.
+        $hashRef->{words} = [];       # Value is an empty array ref.
+        $hashRef->{wordobjects} = []; # Value is an empty array ref.
+        $hashRef->{head} = -1;        # Index into the text array (initialized to -1)
+        $hashRef->{target} = -1;      # Index into the words & wordobjects arrays (initialized to -1)
+        $hashRef->{lexelt} = "";      # Lexical element (terminology from Senseval2)
+        $hashRef->{id} = "";          # Some ID assigned to this instance
+        $hashRef->{answer} = "";      # Answer key (only required for evaluation)
+        $hashRef->{targetpos} = "";   # Part-of-speech of the target word (if known).
+
+    The ones that are important to us are wordobjects and target. The
+    wordobjects array is an array of WordNet::SenseRelate::Word objects.
+    Given a word (say "bank"), a WordNet::SenseRelate::Word object can be
+    created like this:
+
+        use WordNet::SenseRelate::Word;
+
+        my $wordobj = WordNet::SenseRelate::Word->new("bank");
+
+    The wordobject array represents your sentence/paragraph containing the
+    word to be disambiguated. The target field is an index into this array,
+    pointing to the word to be disambiguated. So, for a given example
+    sentence, the disambiguation code would be as follows:
+
+        my @sentence = ("The", "boat", "ran", "aground", "on", "the", "river", "bank");
+        foreach my $theword (@sentence)
+        {
+          my $wordobj = WordNet::SenseRelate::Word->new($theword);
+          push(@{$hashRef->{wordobjects}}, $wordobj);
+          push(@{$hashRef->{words}}, $theword);
+        }
+        $hashRef->{target} = 7;              # Index of "bank"
+        $hashRef->{id} = "Instance1";        # ID can be any string.
+
+    The remaining fields are not really used by the system, but they could
+    be initialized (for use later in the system):
+
+        $hashRef->{lexelt} = "bank.n";
+        $hashRef->{answer} = "bank#n#1";
+        $hashRef->{targetpos} = "n";         # n, v, a or r
+        $hashRef->{text} = [("The boat ran aground on the river", "bank")];
+        $hashRef->{head} = 1;                # Index to bank
+
+    Finally, the disambiguation is done as follows:
+
+        my ($sense, $error) = $wsd->disambiguate($hashRef);
+        print "$sense\n";
+
+    The scalar $sense contains the selected sense of the target word, and
+    can be processed as required.
 
 SOFTWARE COPYRIGHT AND LICENSE
-    Copyright (C) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev
+    Copyright (C) 2005 Ted Pedersen, Siddharth Patwardhan, and Satanjeev
     Banerjee
 
     This suite of programs is free software; you can redistribute it and/or
@@ -362,10 +435,11 @@ ACKNOWLEDGEMENTS
     Faculty Early CAREER Development Award (#0092784).
 
 REFERENCES
-    1   S. Banerjee and T. Pedersen. An Adapted Lesk Algorithm for Word
-        Sense Disambiguation Using WordNet. In Proceedings of the Fourth
-        International Conference on Computational Linguistics and
-        Intelligent Text Processing (CICLING-02). Mexico City, Mexico. 2002.
+    1   S. Patwardhan and T. Pedersen. Using WordNet-based Context Vectors
+        to Estimate the Semantic Relatedness of Concepts. In Proceedings of
+        the EACL 2006 Workshop on Making Sense of Sense: Bringing
+        Computational Linguistics and Psycholinguistics Together, pages 1-8,
+        Trento, Italy, April 2006.
 
     2   S. Banerjee and T. Pedersen. Extended gloss overlaps as a measure of
         semantic relatedness. In Proceedings of the Eighteenth International
@@ -377,15 +451,20 @@ REFERENCES
         Fourth International Conference on Intelligent Text Processing and
         Computational Linguistics (CiCLING-03). Mexico City, Mexico. 2003.
 
-    4   S. Banerjee. Adapting the Lesk algorithm for Word Sense
-        Disambiguation to WordNet. Masters Thesis, University of Minnesota,
-        Duluth. 2002.
-
-    5   S. Patwardhan. Incorporating Dictionary and Corpus Information into
+    4   S. Patwardhan. Incorporating Dictionary and Corpus Information into
         a Context Vector Measure of Semantic Relatedness. Masters Thesis,
         University of Minnesota, Duluth. 2003.
 
-    6   Fellbaum C., editor. WordNet: An electronic lexical database. MIT
+    5   S. Banerjee and T. Pedersen. An Adapted Lesk Algorithm for Word
+        Sense Disambiguation Using WordNet. In Proceedings of the Fourth
+        International Conference on Computational Linguistics and
+        Intelligent Text Processing (CICLING-02). Mexico City, Mexico. 2002.
+
+    6   S. Banerjee. Adapting the Lesk algorithm for Word Sense
+        Disambiguation to WordNet. Masters Thesis, University of Minnesota,
+        Duluth. 2002.
+
+    7   Fellbaum C., editor. WordNet: An electronic lexical database. MIT
         Press. 1998.
 
 SEE ALSO
@@ -396,17 +475,17 @@ SEE ALSO
     <http://senserelate.sourceforge.net>
 
 AUTHORS
-     Siddharth Patwardhan, University of Utah
-     sidd at cs.utah.edu
-
      Ted Pedersen, University of Minnesota Duluth
      tpederse at d.umn.edu
+
+     Siddharth Patwardhan, University of Utah
+     sidd at cs.utah.edu
 
      Satanjeev Banerjee, Carnegie Mellon University
      banerjee+ at cs.cmu.edu
 
 DOCUMENTATION COPYRIGHT AND LICENSE
-    Copyright (C) 2005 Siddharth Patwardhan, Ted Pedersen, and Satanjeev
+    Copyright (C) 2005 Ted Pedersen, Siddharth Patwardhan, and Satanjeev
     Banerjee
 
     Permission is granted to copy, distribute and/or modify this document

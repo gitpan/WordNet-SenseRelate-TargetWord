@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Context::NearestWords v0.02
-# (Last updated $Id: NearestWords.pm,v 1.13 2005/06/29 20:39:43 sidz1979 Exp $)
+# WordNet::SenseRelate::Context::NearestWords v0.09
+# (Last updated $Id: NearestWords.pm,v 1.16 2006/12/24 12:39:19 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Context::NearestWords;
 
@@ -8,7 +8,7 @@ use warnings;
 use Exporter;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.02';
+our $VERSION = '0.09';
 
 # Constructor for this module
 sub new
@@ -79,6 +79,7 @@ sub process
     my $count      = $self->{count};
     my $poses      = $self->{poses};
     my $contextpos = $self->{contextpos};
+    my $targetpos  = $intext->{targetpos};
     my $trace      = $self->{trace};
     $count = 5      if (!defined $count || $count !~ /^[0-9]+$/);
     $poses = "nvar" if (!defined $poses || $poses !~ /^[nvar]*$/);
@@ -136,8 +137,8 @@ sub process
         $targetptr                   = $intext->{target};
         $context->{targetword}       = $intext->{words}->[$targetptr];
         $context->{targetwordobject} = $intext->{wordobjects}->[$targetptr];
-        $context->{targetwordobject}->restrictSenses($contextpos)
-            if(defined $contextpos);
+        $context->{targetwordobject}->restrictSenses($targetpos)
+            if(defined $targetpos);
         if ($trace)
         {
             $self->{tracestring} .=
@@ -168,7 +169,7 @@ sub process
               if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
-                if (   $wordobj->{poslist} =~ $pos
+                if (   $wordobj->{poslist} =~ /$pos/
                     && scalar($wordobj->getSenses()) > 0
                     && !defined $self->{stop}->{lc($wordobj->getWord())})
                 {
@@ -198,7 +199,7 @@ sub process
               if (defined $contextpos);
             foreach my $pos (split(//, $poses))
             {
-                if (   $wordobj->{poslist} =~ $pos
+                if (   $wordobj->{poslist} =~ /$pos/
                     && scalar($wordobj->getSenses()) > 0
                     && !defined $self->{stop}->{lc($wordobj->getWord())})
                 {
@@ -277,15 +278,15 @@ WordNet::SenseRelate::TargetWord(3)
 
 =head1 AUTHOR
 
+Ted Pedersen, tpederse at d.umn.edu
+
 Siddharth Patwardhan, sidd at cs.utah.edu
 
 Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
-Ted Pedersen, tpederse at d.umn.edu
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Siddharth Patwardhan, Satanjeev Banerjee and Ted Pedersen
+Copyright (C) 2005 by Ted Pedersen, Siddharth Patwardhan, and Satanjeev Banerjee
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

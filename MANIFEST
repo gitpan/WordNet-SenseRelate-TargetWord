@@ -11,6 +11,9 @@ doc/changelog.pod
 doc/acl05.pdf
 Changes
 GPL.txt
+t/config_fail.t
+t/disamb.t
+t/targetpos.t
 t/WordNet-SenseRelate-TargetWord.t
 lib/WordNet/SenseRelate/Word.pm
 lib/WordNet/SenseRelate/Reader/Senseval2.pm

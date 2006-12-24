@@ -7,6 +7,38 @@ SYNOPSIS
     new version is released.
 
 DESCRIPTION
+  Version 0.09 (12/24/06)
+    *   12/23/06
+
+        (1) Removed Compound detection as a default preprocessing phase.
+            (Sid)
+
+        (2) Added documentation to README, with sample code for using the
+            WordNet::SenseRelate::TargetWord module. (Sid)
+
+        (3) Fixed bug: config option "targetpos" was being ignored by
+            disamb.pl. (Sid)
+
+        (4) Added documentation and example code usage to the PODs and man
+            pages of the WordNet::SenseRelate::TargetWord module. (Sid)
+
+        (5) Modified the order of authors in all documentation. (Sid)
+
+        (6) Added data-structure/format checking of options hash passed to
+            WordNet::SenseRelate::TargetWord initilization method. (Sid)
+
+        (7) Added test scripts for all recent bugs fixed. (Sid)
+
+    *   07/18/05
+
+        (1) Changed the default algorithm used by TargetWord to
+            WordNet::SenseRelate::Algorithm::Local. (Sid)
+
+        (2) Changed the default measure used by the "Local" and the "Global"
+            algorithms to WordNet::Similarity::jcn. (Sid)
+
+        (3) Modified some of the documentation. (Sid)
+
   Version 0.08 (Released 06/30/05)
     *   06/29/05
 
@@ -42,23 +74,23 @@ DESCRIPTION
             WordNet::SenseRelate::TargetWord. (Sid)
 
 AUTHORS
-      Siddharth Patwardhan, University of Utah, Salt Lake City
-      sidd at cs.utah.edu
-
       Ted Pedersen, University of Minnesota Duluth
       tpederse at d.umn.edu
+
+      Siddharth Patwardhan, University of Utah, Salt Lake City
+      sidd at cs.utah.edu
 
       Satanjeev Banerjee, Carnegie Mellon University, Pittsburgh
       banerjee+ at cs.cmu.edu
 
-BUGS
+KNOWN BUGS
     None.
 
 SEE ALSO
     todo.pod
 
 COPYRIGHT
-    Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen and Satanjeev
+    Copyright (c) 2005 Ted Pedersen, Siddharth Patwardhan, and Satanjeev
     Banerjee
 
     Permission is granted to copy, distribute and/or modify this document

@@ -1,18 +1,18 @@
 #! /usr/local/bin/perl -w
-# (Updated: $Id: disamb-gui.pl,v 1.5 2005/06/25 09:53:16 sidz1979 Exp $)
+# (Updated: $Id: disamb-gui.pl,v 1.7 2006/12/24 12:18:47 sidz1979 Exp $)
 #
-# disamb-gui.pl version 0.07
+# disamb-gui.pl version 0.09
 #
 # Program that reads in a Senseval-2 formatted lexical sample file, and
 # disambiguates the instances using WordNet::SenseRelate::TargetWord.
 #
 # Copyright (c) 2005
 #
-# Satanjeev Banerjee, Carnegie Mellon University
-# banerjee+@cs.cmu.edu
-#
 # Ted Pedersen, University of Minnesota, Duluth
 # tpederse@d.umn.edu
+#
+# Satanjeev Banerjee, Carnegie Mellon University
+# banerjee+@cs.cmu.edu
 #
 # Siddharth Patwardhan, University of Utah
 # sidd@cs.utah.edu
@@ -45,7 +45,7 @@ our ($opt_config, $opt_wnpath, $opt_help, $opt_version);
 &GetOptions("config=s", "wnpath=s", "help", "version");
 
 # My global variables
-my $VERSION = '0.07';
+my $VERSION = '0.09';
 my $options = {};
 my $lastDir = undef;
 my $instanceData = undef;
@@ -1081,10 +1081,10 @@ sub showAbout
     $fixed_font = Gtk::Gdk::Font->load($name);
     $aboutText->insert($fixed_font, undef, undef, "                       v$VERSION\n");
     $aboutText->insert($fixed_font, undef, undef, "                 Copyright (c) 2005\n\n");
-    $aboutText->insert($fixed_font, undef, undef, "                Siddharth Patwardhan\n");
-    $aboutText->insert($fixed_font, undef, undef, "                  sidd\@cs.utah.edu\n\n");
     $aboutText->insert($fixed_font, undef, undef, "                    Ted Pedersen\n");
     $aboutText->insert($fixed_font, undef, undef, "                 tpederse\@d.umn.edu\n\n");
+    $aboutText->insert($fixed_font, undef, undef, "                Siddharth Patwardhan\n");
+    $aboutText->insert($fixed_font, undef, undef, "                  sidd\@cs.utah.edu\n\n");
     $aboutText->insert($fixed_font, undef, undef, "                 Satanjeev Banerjee\n");
     $aboutText->insert($fixed_font, undef, undef, "                banerjee+\@cs.cmu.edu\n");
     $aboutText->show();
@@ -1242,7 +1242,7 @@ sub askHelp
 sub printVersion
 {
     print "disamb-gui.pl version $VERSION\n";
-    print "Copyright (c) 2005 Satanjeev Banerjee, Ted Pedersen and Siddharth Patwardhan.\n";
+    print "Copyright (c) 2005 Ted Pedersen, Satanjeev Banerjee, and Siddharth Patwardhan.\n";
 }
 
 __END__
@@ -1284,31 +1284,36 @@ B<--version>
 
 =head1 AUTHORS
 
- Siddharth Patwardhan <sidd at cs.utah.edu>
+ Ted Pedersen, University of Minnesota, Duluth
+ tpederse at d.umn.edu
 
- Ted Pedersen <tpederse at d.umn.edu>
+ Siddharth Patwardhan, University of Utah, Salt Lake City
+ sidd at cs.utah.edu
 
- Satanjeev Banerjee <banerjee+ at cs.cmu.edu>
+ Satanjeev Banerjee, Carnegie Mellon University, Pittsburgh
+ banerjee+ at cs.cmu.edu
 
-=head1 BUGS
+=head1 KNOWN BUGS
+
+None.
 
 =head1 SEE ALSO
 
-perl(1)
+I<perl>(1pm)
 
-WordNet::SenseRelate::TargetWord(3)
+I<WordNet::SenseRelate::TargetWord>(3pm)
 
-WordNet::Similarity(3)
+I<WordNet::Similarity>(3pm)
 
-http://www.cogsci.princeton.edu/~wn/
+L<http://www.cogsci.princeton.edu/~wn>
 
-http://senserelate.sourceforge.net
+L<http://senserelate.sourceforge.net>
 
-http://groups.yahoo.com/group/senserelate/
+L<http://groups.yahoo.com/group/senserelate>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Siddharth Patwardhan, Ted Pedersen, Satanjeev
+Copyright (c) 2005 Ted Pedersen, Siddharth Patwardhan, Satanjeev
 Banerjee
 
 This program is free software; you can redistribute it and/or modify it

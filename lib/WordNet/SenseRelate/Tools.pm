@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Tools v0.01
-# (Last updated $Id: Tools.pm,v 1.3 2005/06/08 13:49:24 sidz1979 Exp $)
+# WordNet::SenseRelate::Tools v0.09
+# (Last updated $Id: Tools.pm,v 1.4 2006/12/24 12:18:45 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Tools;
 
@@ -9,7 +9,7 @@ use Exporter;
 use WordNet::QueryData;
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.01';
+our $VERSION = '0.09';
 
 # Constructor for this module
 sub new
@@ -136,11 +136,13 @@ WordNet::QueryData(3)
 
 =head1 AUTHOR
 
+Ted Pedersen, tpederse at d.umn.edu
+
 Siddharth Patwardhan, sidd at cs.utah.edu
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Siddharth Patwardhan
+Copyright (C) 2005 by Ted Pedersen and Siddharth Patwardhan
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,

@@ -1,5 +1,5 @@
-# WordNet::SenseRelate::Reader::Senseval2 v0.02
-# (Last updated $Id: Senseval2.pm,v 1.9 2005/06/24 13:55:39 sidz1979 Exp $)
+# WordNet::SenseRelate::Reader::Senseval2 v0.09
+# (Last updated $Id: Senseval2.pm,v 1.10 2006/12/24 12:18:47 sidz1979 Exp $)
 
 package WordNet::SenseRelate::Reader::Senseval2;
 
@@ -10,7 +10,7 @@ use WordNet::SenseRelate::Word;
 use vars qw($VERSION @ISA);
 
 @ISA     = qw(Exporter);
-$VERSION = '0.02';
+$VERSION = '0.09';
 
 # Constructor for this module
 # Instance Fields:
@@ -482,15 +482,15 @@ WordNet::SenseRelate::TargetWord(3)
 
 =head1 AUTHOR
 
+Ted Pedersen, tpederse at d.umn.edu
+
 Siddharth Patwardhan, sidd at cs.utah.edu
 
 Satanjeev Banerjee, banerjee+ at cs.cmu.edu
 
-Ted Pedersen, tpederse at d.umn.edu
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2005 by Siddharth Patwardhan, Satanjeev Banerjee and Ted Pedersen
+Copyright (C) 2005 by Ted Pedersen, Siddharth Patwardhan, and Satanjeev Banerjee
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.3 or,
